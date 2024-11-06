@@ -3,6 +3,10 @@
     <style name="Base.Theme.TeamProject_QuickList" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <!-- Override primary color if necessary -->
+        <item name="colorPrimary">#D32F2F</item>
+        <item name="colorPrimaryVariant">#D32F2F</item>
+        <item name="colorAccent">#D32F2F</item>
     </style>
 
     <style name="Theme.TeamProject_QuickList" parent="Base.Theme.TeamProject_QuickList" />
