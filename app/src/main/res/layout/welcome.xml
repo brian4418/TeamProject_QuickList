@@ -6,7 +6,7 @@
     android:layout_height="match_parent">
 
     <ImageView
-        android:id="@+id/logo"
+        android:id="@+id/welcome_logo_imageview"
         android:layout_width="250dp"
         android:layout_height="250dp"
         android:layout_marginTop="110dp"
@@ -16,33 +16,33 @@
         app:srcCompat="@drawable/wisconsin_logo" />
 
     <TextView
-        android:id="@+id/quicklist_title"
+        android:id="@+id/welcome_title_textview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="50dp"
         android:fontFamily="sans-serif"
-        android:text="Quick List"
+        android:text="@string/quicklist_title"
         android:textColor="#000000"
         android:textSize="50sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/logo" />
+        app:layout_constraintTop_toBottomOf="@id/welcome_logo_imageview" />
 
     <TextView
-        android:id="@+id/description"
+        android:id="@+id/welcome_description_textview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
         android:lines="2"
-        android:text="This productive tool is designed to help \nyou better manage your task conveniently!"
+        android:text="@string/quicklist_description"
         android:textAlignment="center"
         android:textColor="#767676"
         android:textSize="15sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/quicklist_title" />
+        app:layout_constraintTop_toBottomOf="@+id/welcome_title_textview" />
 
     <Button
         android:id="@+id/signup_button"
@@ -50,21 +50,21 @@
         android:layout_height="55dp"
         android:layout_marginTop="40dp"
         android:backgroundTint="#DD0000"
-        android:text="Sign-up"
+        android:text="@string/signup"
         android:textAlignment="center"
         android:textSize="25sp"
         android:textStyle="bold"
         app:cornerRadius="12dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/description" />
+        app:layout_constraintTop_toBottomOf="@+id/welcome_description_textview" />
 
     <TextView
-        android:id="@+id/login"
+        android:id="@+id/login_textview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
-        android:text="Log-in"
+        android:text="@string/login"
         android:textColor="#0028FF"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
