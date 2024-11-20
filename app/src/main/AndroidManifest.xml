@@ -23,6 +23,21 @@
         </activity>
 
         <activity
+            android:name=".SignupActivity"
+            android:exported="false" />
+        <activity
+            android:name=".LoginActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".TaskListActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".AddTaskActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".WeeklyTasksActivity"
             android:exported="false" />
 

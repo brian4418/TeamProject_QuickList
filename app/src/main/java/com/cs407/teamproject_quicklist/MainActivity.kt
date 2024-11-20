@@ -7,29 +7,26 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import android.widget.Button
+import android.widget.TextView
 
 class MainActivity : AppCompatActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContentView(R.layout.activity_main)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
+        setContentView(R.layout.welcome)
 
-        // Initialize buttons and set click listeners
-        val buttonWeeklyTasks: Button = findViewById(R.id.buttonWeeklyTasks)
-        val buttonMonthlyTasks: Button = findViewById(R.id.buttonMonthlyTasks)
-
-        buttonWeeklyTasks.setOnClickListener {
-            val intent = Intent(this, WeeklyTasksActivity::class.java)
+        // Navigate to Sign-Up Screen
+        val signupButton: Button = findViewById(R.id.signup_button)
+        signupButton.setOnClickListener {
+            val intent = Intent(this, SignupActivity::class.java)
             startActivity(intent)
         }
 
-        buttonMonthlyTasks.setOnClickListener {
-            val intent = Intent(this, MonthlyTasksActivity::class.java)
+        // Navigate to Login Screen
+        val loginTextView: TextView = findViewById(R.id.login_textview)
+        loginTextView.setOnClickListener {
+            val intent = Intent(this, LoginActivity::class.java)
             startActivity(intent)
         }
     }
