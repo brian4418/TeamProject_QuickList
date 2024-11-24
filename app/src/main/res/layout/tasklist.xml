@@ -1,18 +1,17 @@
-<!-- res/layout/tasklist.xml -->
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    tools:context=".TaskListActivity">
 
     <!-- Task List Header Layout -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:background="@color/colorPrimary"
+        android:background="#D32F2F"
         android:padding="16dp">
 
         <TextView
@@ -20,7 +19,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Task List"
+            android:text="@string/task_list_header"
             android:textColor="#FFFFFF"
             android:textSize="24sp"
             android:textStyle="bold" />
@@ -31,8 +30,7 @@
             android:layout_height="24dp"
             android:layout_marginEnd="16dp"
             android:contentDescription="Add Task"
-            android:src="@android:drawable/ic_input_add"
-            app:tint="#FFFFFF" />
+            android:src="@android:drawable/ic_input_add" />
 
         <ImageView
             android:id="@+id/search_task_imageview"
@@ -40,16 +38,14 @@
             android:layout_height="24dp"
             android:layout_marginEnd="16dp"
             android:contentDescription="Search"
-            android:src="@android:drawable/ic_menu_search"
-            app:tint="#FFFFFF" />
+            android:src="@android:drawable/ic_menu_search" />
 
         <ImageView
             android:id="@+id/more_option_imageview"
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:contentDescription="More Options"
-            android:src="@android:drawable/ic_menu_more"
-            app:tint="#FFFFFF" />
+            android:src="@android:drawable/ic_menu_more" />
     </LinearLayout>
 
     <!-- RecyclerView for Tasks -->
@@ -60,6 +56,5 @@
         android:layout_weight="1"
         android:padding="16dp"
         android:clipToPadding="false"
-        android:scrollbars="vertical"
         tools:listitem="@layout/task_item" />
 </LinearLayout>
