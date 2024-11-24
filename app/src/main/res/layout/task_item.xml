@@ -1,0 +1,49 @@
+<!-- res/layout/task_item.xml -->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:padding="16dp">
+
+    <!-- Task Title -->
+    <TextView
+        android:id="@+id/task_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:gravity="center_vertical"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="#000000" />
+
+    <!-- Right Side (Priority and Date) -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="end">
+
+        <!-- Task Priority -->
+        <TextView
+            android:id="@+id/task_priority"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="end"
+            android:textSize="14sp"
+            android:layout_marginBottom="10dp"
+            android:textStyle="bold"
+            android:textColor="#000000" />
+
+        <!-- Task Date -->
+        <TextView
+            android:id="@+id/task_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="end"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:textColor="#808080" />
+    </LinearLayout>
+</LinearLayout>

@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "605747588480",
+    "firebase_url": "https://quicklist-40784-default-rtdb.firebaseio.com",
+    "project_id": "quicklist-40784",
+    "storage_bucket": "quicklist-40784.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:605747588480:android:483bf00fae719863ce2565",
+        "android_client_info": {
+          "package_name": "com.cs407.teamproject_quicklist"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCdCsrgq5bT3nEYUugzB8HQ6ouALjEktsw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
