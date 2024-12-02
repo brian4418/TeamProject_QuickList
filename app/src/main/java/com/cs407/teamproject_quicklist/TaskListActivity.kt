@@ -13,11 +13,14 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.cs407.teamproject_quicklist.adapters.TaskAdapter
 import com.cs407.teamproject_quicklist.viewmodel.TaskViewModel
+import com.google.firebase.auth.FirebaseAuth
 
 class TaskListActivity : AppCompatActivity() {
 
     private val taskViewModel: TaskViewModel by viewModels()
     private lateinit var taskAdapter: TaskAdapter
+
+    private lateinit var auth: FirebaseAuth
 
     companion object {
         const val ADD_TASK_REQUEST_CODE = 100
@@ -26,6 +29,9 @@ class TaskListActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.tasklist)
+
+        // Initialize Firebase Auth
+        auth = FirebaseAuth.getInstance()
 
         // Initialize RecyclerView
         val recyclerView: RecyclerView = findViewById(R.id.task_recycler_view)
@@ -57,6 +63,17 @@ class TaskListActivity : AppCompatActivity() {
         searchTaskImageView.setOnClickListener {
             showSearchDialog()
         }
+
+        // Handle Logout
+        /*
+        val logoutImageView: ImageView = findViewById(R.id.logout_imageview)
+        logoutImageView.setOnClickListener {
+            auth.signOut()
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
+            finish()
+        }
+         */
     }
 
     private fun showSearchDialog() {
@@ -82,7 +99,7 @@ class TaskListActivity : AppCompatActivity() {
         if (requestCode == ADD_TASK_REQUEST_CODE && resultCode == RESULT_OK) {
             val newTask = data?.getSerializableExtra("new_task") as? com.cs407.teamproject_quicklist.model.Task
             newTask?.let {
-                taskViewModel.addTask(it) // Use ViewModel to add the task
+                taskViewModel.addTask(it)
             }
         }
     }

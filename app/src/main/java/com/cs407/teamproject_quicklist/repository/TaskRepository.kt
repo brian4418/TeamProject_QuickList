@@ -2,17 +2,28 @@ package com.cs407.teamproject_quicklist.repository
 
 import android.util.Log
 import com.cs407.teamproject_quicklist.model.Task
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 
 class TaskRepository {
 
     private val database = FirebaseDatabase.getInstance().reference
+    private val auth = FirebaseAuth.getInstance()
+
+    private fun getUserTasksReference(): DatabaseReference {
+        val userId = auth.currentUser?.uid
+        if (userId == null) {
+            throw IllegalStateException("User is not authenticated")
+        }
+        return database.child("tasks").child(userId)
+    }
 
     fun addTask(task: Task) {
-        val taskId = database.child("tasks").push().key
+        val userTasksRef = getUserTasksReference()
+        val taskId = userTasksRef.push().key
         taskId?.let {
             task.id = it
-            database.child("tasks").child(it).setValue(task)
+            userTasksRef.child(it).setValue(task)
                 .addOnSuccessListener {
                     Log.d("TaskRepository", "Task added successfully")
                 }
@@ -23,7 +34,8 @@ class TaskRepository {
     }
 
     fun editTask(taskId: String, task: Task) {
-        database.child("tasks").child(taskId).setValue(task)
+        val userTasksRef = getUserTasksReference()
+        userTasksRef.child(taskId).setValue(task)
             .addOnSuccessListener {
                 Log.d("TaskRepository", "Task edited successfully")
             }
@@ -33,7 +45,8 @@ class TaskRepository {
     }
 
     fun deleteTask(taskId: String) {
-        database.child("tasks").child(taskId).removeValue()
+        val userTasksRef = getUserTasksReference()
+        userTasksRef.child(taskId).removeValue()
             .addOnSuccessListener {
                 Log.d("TaskRepository", "Task deleted successfully")
             }
@@ -43,7 +56,8 @@ class TaskRepository {
     }
 
     fun getAllTasks(callback: (List<Task>) -> Unit) {
-        database.child("tasks").addValueEventListener(object : ValueEventListener {
+        val userTasksRef = getUserTasksReference()
+        userTasksRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val taskList = mutableListOf<Task>()
                 for (taskSnapshot in snapshot.children) {
@@ -55,7 +69,7 @@ class TaskRepository {
 
             override fun onCancelled(error: DatabaseError) {
                 Log.e("TaskRepository", "Error fetching tasks", error.toException())
-                callback(emptyList()) // Return an empty list or handle the error as needed
+                callback(emptyList())
             }
         })
     }
