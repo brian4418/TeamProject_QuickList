@@ -43,6 +43,10 @@ class TaskAdapter(private var tasks: List<Task>) : RecyclerView.Adapter<TaskAdap
 
     override fun getItemCount(): Int = filteredTasks.size
 
+    fun getTaskAtPosition(position: Int): Task {
+        return filteredTasks[position]
+    }
+
     fun updateTasks(newTasks: List<Task>) {
         tasks = newTasks
         filteredTasks = newTasks

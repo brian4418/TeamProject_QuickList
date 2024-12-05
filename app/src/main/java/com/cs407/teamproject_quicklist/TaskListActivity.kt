@@ -9,9 +9,11 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.cs407.teamproject_quicklist.adapters.TaskAdapter
+import com.cs407.teamproject_quicklist.model.Task
 import com.cs407.teamproject_quicklist.viewmodel.TaskViewModel
 import com.google.firebase.auth.FirebaseAuth
 
@@ -24,6 +26,7 @@ class TaskListActivity : AppCompatActivity() {
 
     companion object {
         const val ADD_TASK_REQUEST_CODE = 100
+        const val EDIT_TASK_REQUEST_CODE = 101
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,6 +45,9 @@ class TaskListActivity : AppCompatActivity() {
         // Add dividers between items
         val divider = DividerItemDecoration(this, LinearLayoutManager.VERTICAL)
         recyclerView.addItemDecoration(divider)
+
+        // Enable swipe-to-edit
+        enableSwipeToEdit(recyclerView)
 
         // Observe tasks from ViewModel
         taskViewModel.tasks.observe(this, Observer { taskList ->
@@ -63,17 +69,35 @@ class TaskListActivity : AppCompatActivity() {
         searchTaskImageView.setOnClickListener {
             showSearchDialog()
         }
+    }
 
-        // Handle Logout
-        /*
-        val logoutImageView: ImageView = findViewById(R.id.logout_imageview)
-        logoutImageView.setOnClickListener {
-            auth.signOut()
-            val intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)
-            finish()
+    private fun enableSwipeToEdit(recyclerView: RecyclerView) {
+        val swipeToEditCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean {
+                return false // No move support
+            }
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                // Get the swiped task
+                val position = viewHolder.adapterPosition
+                val taskToEdit = taskAdapter.getTaskAtPosition(position)
+
+                // Open AddTaskActivity with the task details pre-filled
+                val intent = Intent(this@TaskListActivity, AddTaskActivity::class.java)
+                intent.putExtra("edit_task", taskToEdit)
+                startActivityForResult(intent, EDIT_TASK_REQUEST_CODE)
+
+                // Reset the swipe (so the UI goes back to normal)
+                taskAdapter.notifyItemChanged(position)
+            }
         }
-         */
+
+        val itemTouchHelper = ItemTouchHelper(swipeToEditCallback)
+        itemTouchHelper.attachToRecyclerView(recyclerView)
     }
 
     private fun showSearchDialog() {
@@ -97,9 +121,20 @@ class TaskListActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == ADD_TASK_REQUEST_CODE && resultCode == RESULT_OK) {
-            val newTask = data?.getSerializableExtra("new_task") as? com.cs407.teamproject_quicklist.model.Task
+            val newTask = data?.getSerializableExtra("new_task") as? Task
             newTask?.let {
                 taskViewModel.addTask(it)
+            }
+        } else if (requestCode == EDIT_TASK_REQUEST_CODE && resultCode == RESULT_OK) {
+            val editedTask = data?.getSerializableExtra("edited_task") as? Task
+            editedTask?.let {
+                taskViewModel.updateTask(it)
+            }
+
+            // Handle deleted task
+            val deletedTaskId = data?.getStringExtra("deleted_task_id")
+            deletedTaskId?.let {
+                taskViewModel.deleteTask(it)
             }
         }
     }

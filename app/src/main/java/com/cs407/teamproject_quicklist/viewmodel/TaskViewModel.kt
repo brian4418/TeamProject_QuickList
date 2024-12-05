@@ -23,8 +23,8 @@ class TaskViewModel : ViewModel() {
         repository.addTask(task)
     }
 
-    fun updateTask(taskId: String, task: Task) {
-        repository.editTask(taskId, task)
+    fun updateTask(task: Task) {
+        repository.editTask(task.id, task)
     }
 
     fun deleteTask(taskId: String) {
