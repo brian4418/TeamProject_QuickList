@@ -1,14 +1,19 @@
 package com.cs407.teamproject_quicklist.repository
 
-import android.util.Log
+import android.content.Context
+import androidx.work.*
 import com.cs407.teamproject_quicklist.model.Task
+import com.cs407.teamproject_quicklist.workers.NotificationWorker
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
+import java.text.SimpleDateFormat
+import java.util.Locale
+import java.util.concurrent.TimeUnit
 
-class TaskRepository {
+class TaskRepository(private val context: Context) {
 
-    private val database = FirebaseDatabase.getInstance().reference
-    private val auth = FirebaseAuth.getInstance()
+    private val database: DatabaseReference = FirebaseDatabase.getInstance().reference
+    private val auth: FirebaseAuth = FirebaseAuth.getInstance()
 
     private fun getUserTasksReference(): DatabaseReference {
         val userId = auth.currentUser?.uid
@@ -25,10 +30,10 @@ class TaskRepository {
             task.id = it
             userTasksRef.child(it).setValue(task)
                 .addOnSuccessListener {
-                    Log.d("TaskRepository", "Task added successfully")
+                    scheduleTaskReminder(task)
                 }
                 .addOnFailureListener { e ->
-                    Log.e("TaskRepository", "Error adding task", e)
+                    e.printStackTrace()
                 }
         }
     }
@@ -37,10 +42,10 @@ class TaskRepository {
         val userTasksRef = getUserTasksReference()
         userTasksRef.child(taskId).setValue(task)
             .addOnSuccessListener {
-                Log.d("TaskRepository", "Task edited successfully")
+                scheduleTaskReminder(task)
             }
             .addOnFailureListener { e ->
-                Log.e("TaskRepository", "Error editing task", e)
+                e.printStackTrace()
             }
     }
 
@@ -48,29 +53,83 @@ class TaskRepository {
         val userTasksRef = getUserTasksReference()
         userTasksRef.child(taskId).removeValue()
             .addOnSuccessListener {
-                Log.d("TaskRepository", "Task deleted successfully")
+                cancelTaskReminder(taskId)
             }
             .addOnFailureListener { e ->
-                Log.e("TaskRepository", "Error deleting task", e)
+                e.printStackTrace()
             }
+    }
+
+    private fun scheduleTaskReminder(task: Task) {
+        try {
+            val taskDate = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.US).parse(task.deadline)
+            val taskTimeMillis = taskDate?.time ?: throw IllegalArgumentException("Invalid date format")
+            val currentTimeMillis = System.currentTimeMillis()
+            val delay = taskTimeMillis - currentTimeMillis
+
+            if (delay > 0) {
+                val data = Data.Builder()
+                    .putString("taskTitle", task.title)
+                    .putString("taskDescription", task.description)
+                    .build()
+
+                val workRequest = OneTimeWorkRequestBuilder<NotificationWorker>()
+                    .setInitialDelay(delay, TimeUnit.MILLISECONDS)
+                    .setInputData(data)
+                    .addTag(task.id) // Add tag for cancellation
+                    .build()
+
+                WorkManager.getInstance(context).enqueue(workRequest)
+                println("Scheduled notification for task: ${task.title} with delay: $delay ms")
+            } else {
+                println("Task deadline already passed. Skipping notification for: ${task.title}")
+            }
+        } catch (e: Exception) {
+            println("Error scheduling reminder: ${e.message}")
+            e.printStackTrace()
+        }
+    }
+
+    private fun cancelTaskReminder(taskId: String) {
+        try {
+            WorkManager.getInstance(context).cancelAllWorkByTag(taskId)
+            println("Cancelled notification for task ID: $taskId")
+        } catch (e: Exception) {
+            println("Error cancelling reminder for task ID: $taskId: ${e.message}")
+            e.printStackTrace()
+        }
     }
 
     fun getAllTasks(callback: (List<Task>) -> Unit) {
         val userTasksRef = getUserTasksReference()
         userTasksRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                val taskList = mutableListOf<Task>()
-                for (taskSnapshot in snapshot.children) {
-                    val task = taskSnapshot.getValue(Task::class.java)
-                    task?.let { taskList.add(it) }
-                }
+                val taskList = snapshot.children.mapNotNull { it.getValue(Task::class.java) }
                 callback(taskList)
             }
 
             override fun onCancelled(error: DatabaseError) {
-                Log.e("TaskRepository", "Error fetching tasks", error.toException())
+                error.toException().printStackTrace()
                 callback(emptyList())
             }
         })
+    }
+
+    fun markTaskComplete(taskId: String, isComplete: Boolean) {
+        val userTasksRef = getUserTasksReference()
+        userTasksRef.child(taskId).child("isComplete").setValue(isComplete)
+            .addOnSuccessListener {
+                if (!isComplete) {
+                    userTasksRef.child(taskId).get().addOnSuccessListener { snapshot ->
+                        val task = snapshot.getValue(Task::class.java)
+                        task?.let { scheduleTaskReminder(it) }
+                    }
+                } else {
+                    cancelTaskReminder(taskId)
+                }
+            }
+            .addOnFailureListener { e ->
+                e.printStackTrace()
+            }
     }
 }

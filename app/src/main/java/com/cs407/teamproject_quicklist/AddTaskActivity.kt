@@ -25,8 +25,9 @@ class AddTaskActivity : AppCompatActivity() {
     private lateinit var submitButton: Button
     private lateinit var deleteButton: Button
 
+    private val dateTimeFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.US)
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
-    private val timeFormat = SimpleDateFormat("hh:mm a", Locale.US)
+    private val timeFormat = SimpleDateFormat("HH:mm", Locale.US)
     private val calendar = Calendar.getInstance()
 
     private var isEditMode = false
@@ -56,26 +57,16 @@ class AddTaskActivity : AppCompatActivity() {
             isEditMode = true
             taskId = taskToEdit.id
 
-            // Pre-fill fields with task details
-            titleEditText.setText(taskToEdit.title)
-
+            // Split deadline String into date and time
             val deadlineParts = taskToEdit.deadline.split(" ")
             if (deadlineParts.size == 2) {
                 deadlineEditText.setText(deadlineParts[0]) // Date
                 timeEditText.setText(deadlineParts[1])    // Time
-                // Set calendar with the existing values
-                val taskDate = dateFormat.parse(deadlineParts[0])
-                val taskTime = timeFormat.parse(deadlineParts[1])
-                if (taskDate != null) {
-                    calendar.time = taskDate
-                }
-                if (taskTime != null) {
-                    val taskTimeCalendar = Calendar.getInstance()
-                    taskTimeCalendar.time = taskTime
-                    calendar.set(Calendar.HOUR_OF_DAY, taskTimeCalendar.get(Calendar.HOUR_OF_DAY))
-                    calendar.set(Calendar.MINUTE, taskTimeCalendar.get(Calendar.MINUTE))
-                }
+                val taskDate = dateTimeFormat.parse(taskToEdit.deadline)
+                if (taskDate != null) calendar.time = taskDate
             }
+
+            titleEditText.setText(taskToEdit.title)
 
             prioritySpinner.setSelection(
                 when (taskToEdit.priority) {
@@ -137,19 +128,19 @@ class AddTaskActivity : AppCompatActivity() {
         // Handle the submit button click
         submitButton.setOnClickListener {
             val title = titleEditText.text.toString()
-            val deadlineDate = deadlineEditText.text.toString()
-            val deadlineTime = timeEditText.text.toString()
             val priority = prioritySpinner.selectedItem.toString()
             val recurring = recurringSpinner.selectedItem.toString()
 
-            if (title.isEmpty() || deadlineDate.isEmpty() || deadlineTime.isEmpty()) {
+            if (title.isEmpty() || deadlineEditText.text.isEmpty() || timeEditText.text.isEmpty()) {
                 Toast.makeText(this, "Please enter all details", Toast.LENGTH_SHORT).show()
             } else {
-                val deadline = "$deadlineDate $deadlineTime" // Combine date and time
+                val deadlineDate = deadlineEditText.text.toString()
+                val deadlineTime = timeEditText.text.toString()
+                val deadline = "$deadlineDate $deadlineTime" // Combine date and time as a String
                 val updatedTask = Task(
                     id = if (isEditMode) taskId else "", // Preserve task ID if editing
                     title = title,
-                    deadline = deadline,
+                    deadline = deadline, // Use String
                     description = "", // Placeholder for now
                     priority = priority,
                     recurring = recurring
@@ -184,7 +175,6 @@ class AddTaskActivity : AppCompatActivity() {
         datePickerDialog.show()
     }
 
-    @SuppressLint("DefaultLocale")
     private fun showTimePicker() {
         val hour = calendar.get(Calendar.HOUR_OF_DAY)
         val minute = calendar.get(Calendar.MINUTE)

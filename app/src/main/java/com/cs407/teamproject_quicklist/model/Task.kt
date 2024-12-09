@@ -9,7 +9,8 @@ data class Task(
     val deadline: String = "",
     val description: String = "",
     val priority: String = "",
-    val recurring: String = ""
+    val recurring: String = "",
+    var isComplete: Boolean = false
 ) : Serializable {
     @Exclude
     fun toMap(): Map<String, Any?> {
@@ -19,7 +20,8 @@ data class Task(
             "deadline" to deadline,
             "description" to description,
             "priority" to priority,
-            "recurring" to recurring
+            "recurring" to recurring,
+            "isComplete" to isComplete
         )
     }
 }

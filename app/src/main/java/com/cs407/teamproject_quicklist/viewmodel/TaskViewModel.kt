@@ -6,9 +6,7 @@ import androidx.lifecycle.ViewModel
 import com.cs407.teamproject_quicklist.model.Task
 import com.cs407.teamproject_quicklist.repository.TaskRepository
 
-class TaskViewModel : ViewModel() {
-
-    private val repository = TaskRepository()
+class TaskViewModel(private val repository: TaskRepository) : ViewModel() {
 
     private val _tasks = MutableLiveData<List<Task>>()
     val tasks: LiveData<List<Task>> get() = _tasks
@@ -29,5 +27,9 @@ class TaskViewModel : ViewModel() {
 
     fun deleteTask(taskId: String) {
         repository.deleteTask(taskId)
+    }
+
+    fun markTaskComplete(taskId: String, isComplete: Boolean) {
+        repository.markTaskComplete(taskId, isComplete)
     }
 }

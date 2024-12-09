@@ -1,12 +1,19 @@
 package com.cs407.teamproject_quicklist
 
+import android.Manifest
 import android.app.AlertDialog
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.widget.EditText
 import android.widget.ImageView
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -15,19 +22,33 @@ import androidx.recyclerview.widget.RecyclerView
 import com.cs407.teamproject_quicklist.adapters.TaskAdapter
 import com.cs407.teamproject_quicklist.model.Task
 import com.cs407.teamproject_quicklist.viewmodel.TaskViewModel
+import com.cs407.teamproject_quicklist.viewmodel.TaskViewModelFactory
 import com.google.firebase.auth.FirebaseAuth
 
 class TaskListActivity : AppCompatActivity() {
 
-    private val taskViewModel: TaskViewModel by viewModels()
     private lateinit var taskAdapter: TaskAdapter
-
     private lateinit var auth: FirebaseAuth
 
     companion object {
         const val ADD_TASK_REQUEST_CODE = 100
         const val EDIT_TASK_REQUEST_CODE = 101
     }
+
+    // Initialize the ViewModel with a factory
+    private val taskViewModel: TaskViewModel by viewModels {
+        TaskViewModelFactory(this)
+    }
+
+    // Request notification permission
+    private val requestNotificationPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            if (isGranted) {
+                Toast.makeText(this, "Notification permission granted", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this, "Notification permission denied", Toast.LENGTH_SHORT).show()
+            }
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,9 +57,20 @@ class TaskListActivity : AppCompatActivity() {
         // Initialize Firebase Auth
         auth = FirebaseAuth.getInstance()
 
+        // Check notification permission on Android 13+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ActivityCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                requestNotificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
+
         // Initialize RecyclerView
         val recyclerView: RecyclerView = findViewById(R.id.task_recycler_view)
-        taskAdapter = TaskAdapter(emptyList())
+        taskAdapter = TaskAdapter(mutableListOf(), ::onTaskChecked)
         recyclerView.adapter = taskAdapter
         recyclerView.layoutManager = LinearLayoutManager(this)
 
@@ -51,6 +83,8 @@ class TaskListActivity : AppCompatActivity() {
 
         // Observe tasks from ViewModel
         taskViewModel.tasks.observe(this, Observer { taskList ->
+            Log.d("TaskListActivity", "Tasks updated: ${taskList.size}")
+            taskList.forEach { Log.d("TaskListActivity", "Task: ${it.title}, Completed: ${it.isComplete}") }
             taskAdapter.updateTasks(taskList)
         })
 
@@ -117,7 +151,15 @@ class TaskListActivity : AppCompatActivity() {
         dialog.show()
     }
 
-    // Handle result from AddTaskActivity
+    private fun onTaskChecked(task: Task, isChecked: Boolean) {
+        Log.d("TaskListActivity", "Task ${task.title} marked as ${if (isChecked) "complete" else "incomplete"}")
+        if (task.isComplete != isChecked) {
+            task.isComplete = isChecked
+            taskViewModel.markTaskComplete(task.id, isChecked)
+            taskViewModel.fetchTasks() // Refresh the task list
+        }
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == ADD_TASK_REQUEST_CODE && resultCode == RESULT_OK) {
