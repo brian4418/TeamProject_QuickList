@@ -7,8 +7,10 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.EditText
 import android.widget.ImageView
+import android.widget.PopupMenu
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -56,6 +58,14 @@ class TaskListActivity : AppCompatActivity() {
 
         // Initialize Firebase Auth
         auth = FirebaseAuth.getInstance()
+
+        // Find the more options ImageView
+        val moreOptionsImage = findViewById<ImageView>(R.id.more_option_imageview)
+
+        // Set click listener for the more options button
+        moreOptionsImage.setOnClickListener { view ->
+            showPopupMenu(view)
+        }
 
         // Check notification permission on Android 13+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -149,6 +159,32 @@ class TaskListActivity : AppCompatActivity() {
             .create()
 
         dialog.show()
+    }
+
+    private fun showPopupMenu(view: View) {
+        val popup = PopupMenu(this, view)
+        popup.menuInflater.inflate(R.menu.more_options_menu, popup.menu)
+
+        popup.setOnMenuItemClickListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.action_settings -> {
+                    // Launch Settings Activity
+                    val intent = Intent(this, SettingsActivity::class.java)
+                    startActivity(intent)
+                    true
+                }
+                R.id.action_logout -> {
+                    // Handle Logout
+                    auth.signOut()
+                    val intent = Intent(this, MainActivity::class.java)
+                    startActivity(intent)
+                    finish()
+                    true
+                }
+                else -> false
+            }
+        }
+        popup.show()
     }
 
     private fun onTaskChecked(task: Task, isChecked: Boolean) {
