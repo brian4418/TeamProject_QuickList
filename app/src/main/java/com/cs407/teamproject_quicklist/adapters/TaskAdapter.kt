@@ -51,6 +51,7 @@ class TaskAdapter(
 
         // Add listener for checkbox changes
         holder.completeCheckBox.setOnCheckedChangeListener { _, isChecked ->
+            task.isComplete = isChecked
             onTaskCompleteChange(task, isChecked)
         }
     }

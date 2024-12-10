@@ -15,15 +15,19 @@
         android:layout_height="wrap_content"
         android:background="#C5050C"
         android:minHeight="?attr/actionBarSize"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:navigationIcon="@drawable/ic_back">
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/settings"
             android:textColor="@color/white"
             android:textSize="40sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:gravity="center"
+            android:layout_marginEnd="50dp"/> <!-- This margin helps center the text accounting for the back button -->
+
     </androidx.appcompat.widget.Toolbar>
 
     <!-- Menu Items -->
@@ -75,32 +79,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/notification_settings"
-                android:textColor="@color/black"
-                android:textStyle="bold"
-                android:textSize="20sp" />
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginTop="16dp"
-                android:background="#E5E5E5" />
-        </LinearLayout>
-
-        <!-- Languages -->
-        <LinearLayout
-            android:id="@+id/languages_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="?attr/selectableItemBackground"
-            android:clickable="true"
-            android:focusable="true"
-            android:orientation="vertical"
-            android:padding="16dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/languages"
                 android:textColor="@color/black"
                 android:textStyle="bold"
                 android:textSize="20sp" />
